@@ -137,7 +137,7 @@ def restock_item(data: RestockSchema, user: dict = Depends(get_current_user)):
         conn.close()
 
 # 4. POS Invoice Sale (FIFO Stock Reduction + Scrap Sale Logic)
-@router.post("/pos-sale", dependencies=[Depends(RoleChecker(["Admin", "Accountant", "Salesperson"]))])
+@router.post("/pos-sale", dependencies=[Depends(RoleChecker(["Admin", "Accountant", "Salesperson", "Visitor"]))])
 def pos_sale(data: POSSaleSchema, user: dict = Depends(get_current_user)):
     conn = get_db_connection()
     cursor = conn.cursor()

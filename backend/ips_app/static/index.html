@@ -13,6 +13,43 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .transition-all { transition: all 0.2s ease-in-out; }
+
+        /* Custom Theme Overrides */
+        body.theme-emerald { background-color: #f8fafc; color: #1e293b; }
+        
+        body.theme-dark { background-color: #0b0f19; color: #e2e8f0; }
+        body.theme-dark .bg-white { background-color: #1e293b !important; color: #e2e8f0 !important; }
+        body.theme-dark .bg-slate-50 { background-color: #0f172a !important; }
+        body.theme-dark .bg-slate-100 { background-color: #1e293b !important; }
+        body.theme-dark .border-slate-100 { border-color: #334155 !important; }
+        body.theme-dark .border-slate-200 { border-color: #334155 !important; }
+        body.theme-dark .text-slate-800 { color: #f1f5f9 !important; }
+        body.theme-dark .text-slate-700 { color: #cbd5e1 !important; }
+        body.theme-dark .text-slate-600 { color: #94a3b8 !important; }
+        body.theme-dark .text-slate-500 { color: #94a3b8 !important; }
+        body.theme-dark select, body.theme-dark input { background-color: #0f172a !important; color: #e2e8f0 !important; border-color: #334155 !important; }
+        body.theme-dark .bg-slate-900 { background-color: #0f172a !important; }
+        body.theme-dark .text-slate-400 { color: #94a3b8 !important; }
+        body.theme-dark .bg-rose-50 { background-color: #3f1a24 !important; color: #fecdd3 !important; border-color: #f43f5e !important; }
+        body.theme-dark .text-rose-800 { color: #fda4af !important; }
+        body.theme-dark .text-rose-700 { color: #fecdd3 !important; }
+        
+        body.theme-beige { background-color: #fbf8f0; color: #44403c; }
+        body.theme-beige .bg-white { background-color: #fbf8f0 !important; color: #44403c !important; }
+        body.theme-beige .bg-slate-50 { background-color: #f7f3e8 !important; }
+        body.theme-beige .bg-slate-100 { background-color: #efe9d7 !important; }
+        body.theme-beige .border-slate-100 { border-color: #e5dbbf !important; }
+        body.theme-beige .border-slate-200 { border-color: #e5dbbf !important; }
+        body.theme-beige .text-slate-800 { color: #292524 !important; }
+        body.theme-beige .text-slate-700 { color: #44403c !important; }
+        body.theme-beige .text-slate-600 { color: #78716c !important; }
+        body.theme-beige .text-slate-500 { color: #78716c !important; }
+        body.theme-beige select, body.theme-beige input { background-color: #fdfbf7 !important; color: #44403c !important; border-color: #d6d3d1 !important; }
+        body.theme-beige .bg-slate-900 { background-color: #451a03 !important; } /* Deep warm brown/stone */
+        body.theme-beige .text-slate-400 { color: #78716c !important; }
+        body.theme-beige .bg-rose-50 { background-color: #fef2f2 !important; color: #991b1b !important; border-color: #fca5a5 !important; }
+        body.theme-beige .text-rose-800 { color: #991b1b !important; }
+        body.theme-beige .text-rose-700 { color: #b91c1c !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans custom-scrollbar min-h-screen">
@@ -44,6 +81,11 @@
                     </button>
                     <button onclick="quickLogin('salesperson', 'admin123')" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-semibold border border-rose-200 transition-all text-center">
                         🛒 Sales Desk
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <button onclick="quickLogin('visitor', 'admin123')" class="w-full px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-200 transition-all text-center uppercase tracking-wider">
+                        👤 Visitor / Book Customer (Demo)
                     </button>
                 </div>
             </div>
@@ -85,6 +127,15 @@
                 <a href="https://www.ips.org.pk/category/human-development/" target="_blank" class="hover:text-emerald-400 transition-all">💡 Policy Research</a>
             </div>
             <div class="flex items-center space-x-4">
+                <!-- Theme Selector -->
+                <div class="flex items-center space-x-2 bg-slate-800 p-1.5 rounded-lg border border-slate-700">
+                    <span class="text-[9px] text-slate-400 font-bold uppercase pl-1">Theme:</span>
+                    <select id="theme-selector" onchange="changeTheme(this.value)" class="bg-slate-900 text-slate-300 text-xs font-bold focus:outline-none border-none cursor-pointer">
+                        <option value="emerald">💚 Emerald</option>
+                        <option value="dark">🖤 Dark</option>
+                        <option value="beige">💛 Beige</option>
+                    </select>
+                </div>
                 <div class="text-right">
                     <span id="nav-user" class="block text-sm font-bold text-emerald-400 capitalize">Guest</span>
                     <span id="nav-role" class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Guest Role</span>
@@ -171,6 +222,7 @@
                                 <button onclick="switchReportTab('tb')" id="rep-tab-tb" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white transition-all">Trial Balance</button>
                                 <button onclick="switchReportTab('ie')" id="rep-tab-ie" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-100 transition-all">Income & Expense</button>
                                 <button onclick="switchReportTab('bs')" id="rep-tab-bs" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-100 transition-all">Balance Sheet</button>
+                                <button onclick="switchReportTab('ledger')" id="rep-tab-ledger" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-100 transition-all">General Ledger (SOA)</button>
                                 <button onclick="switchReportTab('vouchers')" id="rep-tab-vouchers" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-100 transition-all">Recent Vouchers</button>
                             </div>
                         </div>
@@ -289,6 +341,60 @@
                                     <tbody id="vouchers-rows"></tbody>
                                 </table>
                             </div>
+
+                            <!-- Report: General Ledger / Statement of Account (SOA) -->
+                            <div id="rep-view-ledger" class="report-viewport hidden space-y-6">
+                                <!-- Filter Panel -->
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-wrap gap-4 items-end">
+                                    <div class="flex-1 min-w-[200px]">
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Select General Ledger Account / اکاؤنٹ منتخب کریں</label>
+                                        <select id="gl-account-select" class="w-full px-3 py-2 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+                                    </div>
+                                    <div class="w-40">
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Start Date / تاریخ سے</label>
+                                        <input type="date" id="gl-start-date" class="w-full px-3 py-2 border rounded-xl bg-white text-sm focus:outline-none">
+                                    </div>
+                                    <div class="w-40">
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">End Date / تاریخ تک</label>
+                                        <input type="date" id="gl-end-date" class="w-full px-3 py-2 border rounded-xl bg-white text-sm focus:outline-none">
+                                    </div>
+                                    <button onclick="loadGeneralLedgerSOA()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-100 transition-all">
+                                        🔍 Fetch Statement / لیجر نکالیں
+                                    </button>
+                                    <button onclick="printGeneralLedgerSOA()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all">
+                                        🖨️ Print SOA
+                                    </button>
+                                </div>
+
+                                <!-- Result Table -->
+                                <div id="gl-result-container" class="hidden space-y-4">
+                                    <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border">
+                                        <div>
+                                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Opening Balance (افتتاحی بیلنس)</span>
+                                            <span id="gl-opening-bal" class="text-lg font-bold text-slate-700">0.00 PKR</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Closing Balance (اختتامی بیلنس)</span>
+                                            <span id="gl-closing-bal" class="text-lg font-bold text-emerald-600">0.00 PKR</span>
+                                        </div>
+                                    </div>
+
+                                    <table class="w-full text-left border-collapse text-sm">
+                                        <thead>
+                                            <tr class="border-b border-slate-200 text-slate-400 text-xs font-bold uppercase">
+                                                <th class="py-3 px-4">Date</th>
+                                                <th class="py-3 px-4">Voucher No</th>
+                                                <th class="py-3 px-4">Type</th>
+                                                <th class="py-3 px-4">Narration / Details</th>
+                                                <th class="py-3 px-4 text-right">Debit (PKR)</th>
+                                                <th class="py-3 px-4 text-right">Credit (PKR)</th>
+                                                <th class="py-3 px-4 text-right">Running Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="gl-rows" class="text-xs"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -297,11 +403,11 @@
                 <div id="view-inventory" class="view-panel hidden space-y-6">
                     <div class="flex items-center justify-between border-b pb-4">
                         <div>
-                            <h2 class="text-2xl font-bold text-slate-800">Inventory Management & Sales POS</h2>
-                            <p class="text-sm text-slate-400">FIFO Stock evaluation & Expensed Asset scrap sale logic</p>
+                            <h2 id="inventory-title" class="text-2xl font-bold text-slate-800">Inventory Management & Sales POS</h2>
+                            <p id="inventory-subtitle" class="text-sm text-slate-400">FIFO Stock evaluation & Expensed Asset scrap sale logic</p>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="openRestockModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-100">
+                            <button id="restock-btn" onclick="openRestockModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-100">
                                 📦 GRN Restock Items / خریداری درج کریں
                             </button>
                         </div>
@@ -877,12 +983,23 @@
 
         // 1. Session Initialization
         document.addEventListener("DOMContentLoaded", () => {
+            // Load theme
+            let savedTheme = localStorage.getItem("ips_theme") || "emerald";
+            const themeSel = document.getElementById("theme-selector");
+            if (themeSel) themeSel.value = savedTheme;
+            changeTheme(savedTheme);
+
             if (jwtToken) {
                 showAppPanel();
             } else {
                 showLoginPanel();
             }
         });
+
+        function changeTheme(themeName) {
+            document.body.className = `theme-${themeName} transition-all min-h-screen`;
+            localStorage.setItem("ips_theme", themeName);
+        }
 
         function showLoginPanel() {
             document.getElementById("login-panel").classList.remove("hidden");
@@ -905,6 +1022,7 @@
             
             // Default show all
             allTabs.forEach(tid => document.getElementById(tid).classList.remove("hidden"));
+            document.getElementById("tab-inventory").querySelector("span").innerText = "🛒 Inventory & POS";
             
             if (userRole === "Librarian") {
                 // Librarians only need Library
@@ -918,6 +1036,25 @@
                     document.getElementById(tid).classList.add("hidden");
                 });
                 currentTab = "inventory";
+            } else if (userRole === "Visitor") {
+                // Visitors only need E-Shop (Inventory Tab)
+                ["tab-accounting", "tab-library", "tab-assets", "tab-payroll", "tab-audit"].forEach(tid => {
+                    document.getElementById(tid).classList.add("hidden");
+                });
+                document.getElementById("tab-inventory").querySelector("span").innerText = "🛒 E-Shop (Buy Books)";
+                currentTab = "inventory";
+                
+                // Hide Restock & Inventory list elements
+                setTimeout(() => {
+                    const restockBtn = document.getElementById("restock-btn");
+                    if (restockBtn) restockBtn.classList.add("hidden");
+                    const inventoryStockCard = document.getElementById("inventory-stock-card");
+                    if (inventoryStockCard) inventoryStockCard.classList.add("hidden");
+                    const title = document.getElementById("inventory-title");
+                    if (title) title.innerText = "IPS Press E-Shop / کتابوں کی دکان";
+                    const subtitle = document.getElementById("inventory-subtitle");
+                    if (subtitle) subtitle.innerText = "Browse publications of IPS Press, add to cart, and checkout.";
+                }, 100);
             }
         }
 
@@ -1047,6 +1184,138 @@
             if (reportName === "ie") loadIncomeExpense("All");
             if (reportName === "bs") loadBalanceSheet();
             if (reportName === "vouchers") loadVouchersList();
+            if (reportName === "ledger") populateGLLedgerAccounts();
+        }
+
+        function populateGLLedgerAccounts() {
+            const select = document.getElementById("gl-account-select");
+            select.innerHTML = globalAccounts.map(a => `<option value="${a.id}">${a.code} - ${a.name}</option>`).join("");
+            
+            // Set default dates
+            const today = new Date().toISOString().split("T")[0];
+            document.getElementById("gl-start-date").value = `${new Date().getFullYear()}-01-01`;
+            document.getElementById("gl-end-date").value = today;
+        }
+
+        let currentLedgerData = null;
+
+        async function loadGeneralLedgerSOA() {
+            const accId = document.getElementById("gl-account-select").value;
+            const start = document.getElementById("gl-start-date").value;
+            const end = document.getElementById("gl-end-date").value;
+            if (!accId) return;
+            
+            try {
+                const data = await apiFetch(`/accounting/reports/general-ledger?account_id=${accId}&start_date=${start}&end_date=${end}`);
+                currentLedgerData = data;
+                
+                document.getElementById("gl-opening-bal").innerText = `${data.opening_balance.toLocaleString()} PKR`;
+                document.getElementById("gl-closing-bal").innerText = `${data.closing_balance.toLocaleString()} PKR`;
+                
+                const tbody = document.getElementById("gl-rows");
+                tbody.innerHTML = "";
+                
+                if (data.lines.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 font-semibold">No transactions found for this account in the specified date range.</td></tr>`;
+                } else {
+                    data.lines.forEach(l => {
+                        tbody.innerHTML += `
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 text-xs">
+                                <td class="py-2.5 px-4 font-mono">${l.date}</td>
+                                <td class="py-2.5 px-4 font-bold text-slate-600 font-mono">${l.voucher_no}</td>
+                                <td class="py-2.5 px-4 text-xs font-semibold text-emerald-600 uppercase">${l.voucher_type}</td>
+                                <td class="py-2.5 px-4 text-slate-500">${l.description}</td>
+                                <td class="py-2.5 px-4 text-right font-mono">${l.debit > 0 ? l.debit.toLocaleString() : "-"}</td>
+                                <td class="py-2.5 px-4 text-right font-mono">${l.credit > 0 ? l.credit.toLocaleString() : "-"}</td>
+                                <td class="py-2.5 px-4 text-right font-mono font-bold ${l.running_balance < 0 ? 'text-rose-600' : 'text-emerald-600'}">${l.running_balance.toLocaleString()}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                
+                document.getElementById("gl-result-container").classList.remove("hidden");
+            } catch (e) {
+                alert("General Ledger Error: " + e.message);
+            }
+        }
+
+        function printGeneralLedgerSOA() {
+            if (!currentLedgerData) {
+                alert("Please fetch the ledger statement first!");
+                return;
+            }
+            const data = currentLedgerData;
+            const printWindow = window.open("", "_blank");
+            let rowsHtml = "";
+            
+            data.lines.forEach(l => {
+                rowsHtml += `
+                    <tr>
+                        <td style="padding:8px; border:1px solid #ccc; font-family:monospace;">${l.date}</td>
+                        <td style="padding:8px; border:1px solid #ccc; font-family:monospace;">${l.voucher_no}</td>
+                        <td style="padding:8px; border:1px solid #ccc;">${l.voucher_type}</td>
+                        <td style="padding:8px; border:1px solid #ccc;">${l.description}</td>
+                        <td style="padding:8px; border:1px solid #ccc; text-align:right; font-family:monospace;">${l.debit > 0 ? l.debit.toFixed(2) : "-"}</td>
+                        <td style="padding:8px; border:1px solid #ccc; text-align:right; font-family:monospace;">${l.credit > 0 ? l.credit.toFixed(2) : "-"}</td>
+                        <td style="padding:8px; border:1px solid #ccc; text-align:right; font-family:monospace; font-weight:bold;">${l.running_balance.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            printWindow.document.write(\`
+                <html>
+                <head>
+                    <title>Statement of Account: \${data.account.code} - \${data.account.name}</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 40px; color: #333; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+                        th { background: #f1f5f9; padding: 10px; border: 1px solid #ccc; font-weight: bold; text-align: left; }
+                        td { padding: 8px; border: 1px solid #ccc; }
+                    </style>
+                </head>
+                <body>
+                    <h2 style="text-align:center; color:#047857; margin-bottom:2px;">INSTITUTE OF POLICY STUDIES</h2>
+                    <p style="text-align:center; font-size:11px; margin-top:0; color:#666;">Nasr Chambers, 1, MPCHS Commercial, E-11/3, Islamabad, Pakistan | Ph: +92 51 843 8391</p>
+                    <hr style="border:1px solid #ccc; margin:20px 0;">
+                    
+                    <h3 style="margin-bottom:5px;">Statement of Account (General Ledger)</h3>
+                    <table style="width:100%; border: none; margin-bottom: 20px; font-size:14px;">
+                        <tr style="border: none;">
+                            <td style="border: none; padding: 4px 0;"><b>Account Code:</b> \${data.account.code}</td>
+                            <td style="border: none; padding: 4px 0; text-align:right;"><b>Opening Balance:</b> \${data.opening_balance.toFixed(2)} PKR</td>
+                        </tr>
+                        <tr style="border: none;">
+                            <td style="border: none; padding: 4px 0;"><b>Account Name:</b> \${data.account.name}</td>
+                            <td style="border: none; padding: 4px 0; text-align:right;"><b>Closing Balance:</b> \${data.closing_balance.toFixed(2)} PKR</td>
+                        </tr>
+                    </table>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Voucher No</th>
+                                <th>Type</th>
+                                <th>Narration</th>
+                                <th style="text-align:right;">Debit</th>
+                                <th style="text-align:right;">Credit</th>
+                                <th style="text-align:right;">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            \${rowsHtml || '<tr><td colspan="7" style="text-align:center; padding:20px;">No transactions recorded.</td></tr>'}
+                        </tbody>
+                    </table>
+                    
+                    <div style="margin-top:60px; display:flex; justify-content:space-between; font-size:12px;">
+                        <div>_______________________<br>Prepared By (اکاؤنٹنٹ)</div>
+                        <div>_______________________<br>Audited By (آڈیٹر)</div>
+                    </div>
+                </body>
+                </html>
+            \`);
+            printWindow.document.close();
+            printWindow.print();
         }
 
         async function loadTrialBalance() {

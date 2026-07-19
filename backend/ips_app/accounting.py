@@ -320,3 +320,83 @@ def get_audit_logs():
     logs = [dict(r) for r in cursor.fetchall()]
     conn.close()
     return logs
+
+# 11. General Ledger / Statement of Account (SOA) Report
+@router.get("/reports/general-ledger")
+def get_general_ledger(account_id: int, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Fetch account info
+    cursor.execute("SELECT * FROM accounts WHERE id = ?", (account_id,))
+    account = cursor.fetchone()
+    if not account:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Account not found")
+        
+    is_debit_nature = account["type"] in ("Asset", "Expense")
+    
+    # Calculate opening balance by summing all prior transactions
+    opening_balance = 0.0
+    if start_date:
+        cursor.execute("""
+            SELECT sum(vl.debit - vl.credit) as prior_balance
+            FROM voucher_lines vl
+            JOIN vouchers v ON vl.voucher_id = v.id
+            WHERE vl.account_id = ? AND v.date < ?
+        """, (account_id, start_date))
+        prior_val = cursor.fetchone()["prior_balance"] or 0.0
+        opening_balance = prior_val if is_debit_nature else -prior_val
+    else:
+        # Default opening balance starts at 0, or we could fetch seeded defaults
+        pass
+        
+    # Query voucher lines within range
+    query = """
+        SELECT vl.id, v.voucher_no, v.date, v.type as voucher_type, v.narration as voucher_narration, 
+               vl.debit, vl.credit, vl.description as line_description, v.created_by
+        FROM voucher_lines vl
+        JOIN vouchers v ON vl.voucher_id = v.id
+        WHERE vl.account_id = ?
+    """
+    params = [account_id]
+    if start_date:
+        query += " AND v.date >= ?"
+        params.append(start_date)
+    if end_date:
+        query += " AND v.date <= ?"
+        params.append(end_date)
+        
+    query += " ORDER BY v.date ASC, v.id ASC"
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # Build ledger lines with running balance
+    ledger_lines = []
+    running_balance = opening_balance
+    
+    for row in rows:
+        line_net = row["debit"] - row["credit"]
+        net_impact = line_net if is_debit_nature else -line_net
+        running_balance += net_impact
+        
+        ledger_lines.append({
+            "id": row["id"],
+            "voucher_no": row["voucher_no"],
+            "date": row["date"],
+            "voucher_type": row["voucher_type"],
+            "voucher_narration": row["voucher_narration"],
+            "debit": row["debit"],
+            "credit": row["credit"],
+            "description": row["line_description"] or row["voucher_narration"],
+            "created_by": row["created_by"],
+            "running_balance": running_balance
+        })
+        
+    return {
+        "account": dict(account),
+        "opening_balance": opening_balance,
+        "lines": ledger_lines,
+        "closing_balance": running_balance
+    }

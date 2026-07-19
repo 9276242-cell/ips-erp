@@ -21,7 +21,7 @@ def init_db():
         username TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         email TEXT NOT NULL,
-        role TEXT CHECK(role IN ('Admin', 'Accountant', 'Librarian', 'Salesperson')) NOT NULL,
+        role TEXT CHECK(role IN ('Admin', 'Accountant', 'Librarian', 'Salesperson', 'Visitor')) NOT NULL,
         created_at TEXT NOT NULL
     )""")
 
@@ -199,6 +199,10 @@ def seed_data(conn):
                        ("accountant", pw_hash, "accountant@ips.org.pk", "Accountant", datetime.now().isoformat()))
         cursor.execute("INSERT INTO users (username, password_hash, email, role, created_at) VALUES (?, ?, ?, ?, ?)",
                        ("librarian", pw_hash, "librarian@ips.org.pk", "Librarian", datetime.now().isoformat()))
+        cursor.execute("INSERT INTO users (username, password_hash, email, role, created_at) VALUES (?, ?, ?, ?, ?)",
+                       ("salesperson", pw_hash, "sales@ips.org.pk", "Salesperson", datetime.now().isoformat()))
+        cursor.execute("INSERT INTO users (username, password_hash, email, role, created_at) VALUES (?, ?, ?, ?, ?)",
+                       ("visitor", pw_hash, "visitor@ips.org.pk", "Visitor", datetime.now().isoformat()))
 
     # Seed Default Chart of Accounts (NGO Style)
     cursor.execute("SELECT COUNT(*) FROM accounts")
