@@ -17,31 +17,33 @@
         /* Custom Theme Overrides */
         body.theme-emerald { background-color: #f8fafc; color: #1e293b; }
         
-        body.theme-dark { background-color: #0b0f19; color: #e2e8f0; }
-        body.theme-dark .bg-white { background-color: #1e293b !important; color: #e2e8f0 !important; }
+        /* Dark Theme overrides */
+        body.theme-dark { background-color: #0b0f19; color: #cbd5e1; }
+        body.theme-dark .bg-white { background-color: #1e293b !important; color: #cbd5e1 !important; }
         body.theme-dark .bg-slate-50 { background-color: #0f172a !important; }
         body.theme-dark .bg-slate-100 { background-color: #1e293b !important; }
         body.theme-dark .border-slate-100 { border-color: #334155 !important; }
         body.theme-dark .border-slate-200 { border-color: #334155 !important; }
-        body.theme-dark .text-slate-800 { color: #f1f5f9 !important; }
-        body.theme-dark .text-slate-700 { color: #cbd5e1 !important; }
+        body.theme-dark .text-slate-800, body.theme-dark h1, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4 { color: #f1f5f9 !important; }
+        body.theme-dark .text-slate-700, body.theme-dark p, body.theme-dark td, body.theme-dark th { color: #cbd5e1 !important; }
         body.theme-dark .text-slate-600 { color: #94a3b8 !important; }
         body.theme-dark .text-slate-500 { color: #94a3b8 !important; }
-        body.theme-dark select, body.theme-dark input { background-color: #0f172a !important; color: #e2e8f0 !important; border-color: #334155 !important; }
+        body.theme-dark select, body.theme-dark input { background-color: #0f172a !important; color: #cbd5e1 !important; border-color: #334155 !important; }
         body.theme-dark .bg-slate-900 { background-color: #0f172a !important; }
         body.theme-dark .text-slate-400 { color: #94a3b8 !important; }
         body.theme-dark .bg-rose-50 { background-color: #3f1a24 !important; color: #fecdd3 !important; border-color: #f43f5e !important; }
         body.theme-dark .text-rose-800 { color: #fda4af !important; }
         body.theme-dark .text-rose-700 { color: #fecdd3 !important; }
         
-        body.theme-beige { background-color: #fbf8f0; color: #44403c; }
-        body.theme-beige .bg-white { background-color: #fbf8f0 !important; color: #44403c !important; }
-        body.theme-beige .bg-slate-50 { background-color: #f7f3e8 !important; }
-        body.theme-beige .bg-slate-100 { background-color: #efe9d7 !important; }
-        body.theme-beige .border-slate-100 { border-color: #e5dbbf !important; }
-        body.theme-beige .border-slate-200 { border-color: #e5dbbf !important; }
-        body.theme-beige .text-slate-800 { color: #292524 !important; }
-        body.theme-beige .text-slate-700 { color: #44403c !important; }
+        /* Beige Theme overrides */
+        body.theme-beige { background-color: #fcf9f2; color: #44403c; }
+        body.theme-beige .bg-white { background-color: #fcf9f2 !important; color: #44403c !important; }
+        body.theme-beige .bg-slate-50 { background-color: #f7f3e6 !important; }
+        body.theme-beige .bg-slate-100 { background-color: #eee7d2 !important; }
+        body.theme-beige .border-slate-100 { border-color: #e3d9be !important; }
+        body.theme-beige .border-slate-200 { border-color: #e3d9be !important; }
+        body.theme-beige .text-slate-800, body.theme-beige h1, body.theme-beige h2, body.theme-beige h3, body.theme-beige h4 { color: #1c1917 !important; }
+        body.theme-beige .text-slate-700, body.theme-beige p, body.theme-beige td, body.theme-beige th { color: #44403c !important; }
         body.theme-beige .text-slate-600 { color: #78716c !important; }
         body.theme-beige .text-slate-500 { color: #78716c !important; }
         body.theme-beige select, body.theme-beige input { background-color: #fdfbf7 !important; color: #44403c !important; border-color: #d6d3d1 !important; }
@@ -50,6 +52,31 @@
         body.theme-beige .bg-rose-50 { background-color: #fef2f2 !important; color: #991b1b !important; border-color: #fca5a5 !important; }
         body.theme-beige .text-rose-800 { color: #991b1b !important; }
         body.theme-beige .text-rose-700 { color: #b91c1c !important; }
+
+        /* General UI Legibility & Isolation Rules */
+        aside, aside *, aside span { color: #cbd5e1 !important; }
+        aside button.nav-btn:hover { background-color: #1e293b !important; color: #ffffff !important; }
+        aside button.nav-btn.bg-emerald-600 { background-color: #059669 !important; color: #ffffff !important; }
+        
+        body.theme-beige aside button.nav-btn.bg-emerald-600 { background-color: #ca8a04 !important; color: #ffffff !important; }
+        body.theme-beige aside button.nav-btn:hover { background-color: #7c2d12 !important; color: #ffffff !important; }
+        
+        body.theme-dark aside button.nav-btn.bg-emerald-600 { background-color: #d97706 !important; color: #ffffff !important; }
+        body.theme-dark aside button.nav-btn:hover { background-color: #1e293b !important; color: #ffffff !important; }
+
+        header, header *, header a, header span { color: #f1f5f9 !important; }
+        header a:hover { color: #34d399 !important; }
+        body.theme-beige header { background-color: #451a03 !important; }
+        body.theme-beige header a:hover { color: #facc15 !important; }
+        body.theme-dark header { background-color: #0f172a !important; }
+        body.theme-dark header a:hover { color: #fbbf24 !important; }
+
+        /* Ensure primary action buttons have readable white text */
+        button.bg-emerald-600, button.bg-slate-800, button.bg-emerald-700, button.bg-indigo-600, button.bg-emerald-50, button.bg-amber-50, button.bg-sky-50, button.bg-rose-50, button.bg-indigo-50 { color: #ffffff !important; }
+        body.theme-beige button.bg-emerald-600 { background-color: #ca8a04 !important; color: #ffffff !important; }
+        body.theme-beige button.bg-emerald-600:hover { background-color: #a16207 !important; }
+        body.theme-dark button.bg-emerald-600 { background-color: #d97706 !important; color: #ffffff !important; }
+        body.theme-dark button.bg-emerald-600:hover { background-color: #b45309 !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans custom-scrollbar min-h-screen">
