@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPS ERP - Turn-key Accounting, Inventory, & Library Portal</title>
+    <!-- Local Offline Assets -->
+    <link rel="stylesheet" href="tailwind.min.css">
+    <script src="chart.min.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .transition-all { transition: all 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans custom-scrollbar min-h-screen">
+
+    <!-- LOGIN PANEL -->
+    <div id="login-panel" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100 transition-all transform hover:scale-[1.01]">
+            <div class="text-center mb-8">
+                <!-- IPS Theme Logo Wrapper -->
+                <div class="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
+                    <span class="text-white text-3xl font-bold">IPS</span>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Institute of Policy Studies</h2>
+                <p class="text-slate-400 text-sm mt-1">Enterprise Resource Planning (ERP)</p>
+            </div>
+
+            <!-- Predefined Logins (Quick Demo Click) -->
+            <div class="mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 text-center">Quick Demo Login Selector</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="quickLogin('admin', 'admin123')" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold border border-emerald-200 transition-all text-center">
+                        🔑 Admin (Director)
+                    </button>
+                    <button onclick="quickLogin('accountant', 'admin123')" class="px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs font-semibold border border-amber-200 transition-all text-center">
+                        💼 Accountant
+                    </button>
+                    <button onclick="quickLogin('librarian', 'admin123')" class="px-3 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-xs font-semibold border border-sky-200 transition-all text-center">
+                        📚 Librarian
+                    </button>
+                    <button onclick="quickLogin('salesperson', 'admin123')" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-semibold border border-rose-200 transition-all text-center">
+                        🛒 Sales Desk
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Username / اسم صارف</label>
+                    <input type="text" id="username" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm" placeholder="Enter username">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Password / پاس ورڈ</label>
+                    <input type="password" id="password" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm" placeholder="Enter password">
+                </div>
+                <div id="login-error" class="text-xs text-rose-600 font-semibold hidden text-center"></div>
+                <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-100 hover:shadow-emerald-200 transition-all text-sm uppercase tracking-wider">
+                    Sign In / لاگ ان کریں
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP DASHBOARD -->
+    <div id="app-panel" class="hidden min-h-screen flex flex-col">
+        <!-- TOP NAVBAR -->
+        <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex items-center justify-between border-b border-slate-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-lg shadow-md shadow-emerald-700">IPS</div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight">IPS ERP & Research Portal</h1>
+                    <p class="text-[10px] text-slate-400">Institute of Policy Studies, Islamabad</p>
+                </div>
+            </div>
+            <div class="hidden lg:flex items-center space-x-4 text-xs font-semibold text-slate-400">
+                <a href="https://www.ips.org.pk" target="_blank" class="hover:text-emerald-400 transition-all">🌐 Main Website</a>
+                <span>•</span>
+                <a href="https://press.ips.org.pk" target="_blank" class="hover:text-emerald-400 transition-all">📚 IPS Press (E-Shop)</a>
+                <span>•</span>
+                <a href="https://www.ips.org.pk/category/human-development/" target="_blank" class="hover:text-emerald-400 transition-all">💡 Policy Research</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <span id="nav-user" class="block text-sm font-bold text-emerald-400 capitalize">Guest</span>
+                    <span id="nav-role" class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Guest Role</span>
+                </div>
+                <button onclick="handleLogout()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-all border border-slate-700">
+                    Sign Out / لاگ آؤٹ
+                </button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD CONTAINER -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- SIDEBAR NAVIGATION -->
+            <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800">
+                <nav class="flex-1 px-4 py-6 space-y-1">
+                    <button onclick="switchTab('accounting')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-bold transition-all hover:bg-slate-800 hover:text-white" id="tab-accounting">
+                        <span>💼 Financial Core</span>
+                    </button>
+                    <button onclick="switchTab('inventory')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-bold transition-all hover:bg-slate-800 hover:text-white" id="tab-inventory">
+                        <span>🛒 Inventory & POS</span>
+                    </button>
+                    <button onclick="switchTab('library')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-bold transition-all hover:bg-slate-800 hover:text-white" id="tab-library">
+                        <span>📚 Library Desk</span>
+                    </button>
+                    <button onclick="switchTab('assets')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-bold transition-all hover:bg-slate-800 hover:text-white" id="tab-assets">
+                        <span>🏢 Fixed Assets</span>
+                    </button>
+                    <button onclick="switchTab('payroll')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-bold transition-all hover:bg-slate-800 hover:text-white" id="tab-payroll">
+                        <span>👥 HR & Payroll</span>
+                    </button>
+                    <button onclick="switchTab('audit')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-sm font-bold transition-all hover:bg-slate-800 hover:text-white" id="tab-audit">
+                        <span>🔒 Audit Trails</span>
+                    </button>
+                </nav>
+                <div class="p-4 border-t border-slate-800 text-[10px] text-slate-500 text-center font-bold">
+                    &copy; 2026 IPS Islamabad Office
+                </div>
+            </aside>
+
+            <!-- MAIN VIEWPORTS -->
+            <main class="flex-1 p-8 overflow-y-auto custom-scrollbar">
+
+                <!-- 1. ACCOUNTING MODULE VIEWPORT -->
+                <div id="view-accounting" class="view-panel hidden space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Financial Ledger & Fund Accounting</h2>
+                            <p class="text-sm text-slate-400">NGO style Restricted/Unrestricted fund tracking</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="openVoucherModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-100">
+                                ➕ New Voucher Entry / واؤچر داخل کریں
+                            </button>
+                            <button onclick="loadFinancialReports()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all">
+                                🔄 Refresh Reports
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- FINANCIAL CARDS (NGO OVERVIEW) -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Faisal Bank Balance</span>
+                            <span id="card-bank-bal" class="text-2xl font-bold text-slate-800 block mt-1">0.00 PKR</span>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">General Fund (Unrestricted)</span>
+                            <span id="card-unrestricted-bal" class="text-2xl font-bold text-emerald-600 block mt-1">0.00 PKR</span>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Research Fund (Restricted)</span>
+                            <span id="card-restricted-bal" class="text-2xl font-bold text-amber-600 block mt-1">0.00 PKR</span>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Library Fine Receipts</span>
+                            <span id="card-library-fines" class="text-2xl font-bold text-sky-600 block mt-1">0.00 PKR</span>
+                        </div>
+                    </div>
+
+                    <!-- REPORTS TABS -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <div class="flex space-x-1">
+                                <button onclick="switchReportTab('tb')" id="rep-tab-tb" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white transition-all">Trial Balance</button>
+                                <button onclick="switchReportTab('ie')" id="rep-tab-ie" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-100 transition-all">Income & Expense</button>
+                                <button onclick="switchReportTab('bs')" id="rep-tab-bs" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-100 transition-all">Balance Sheet</button>
+                                <button onclick="switchReportTab('vouchers')" id="rep-tab-vouchers" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-100 transition-all">Recent Vouchers</button>
+                            </div>
+                        </div>
+
+                        <div class="p-6">
+                            <!-- Report: Trial Balance -->
+                            <div id="rep-view-tb" class="report-viewport space-y-4">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-200 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                            <th class="py-3 px-4">Account Code</th>
+                                            <th class="py-3 px-4">Account Name</th>
+                                            <th class="py-3 px-4">Account Type</th>
+                                            <th class="py-3 px-4 text-right">Debit (PKR)</th>
+                                            <th class="py-3 px-4 text-right">Credit (PKR)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="trial-balance-rows" class="text-sm"></tbody>
+                                    <tfoot>
+                                        <tr class="border-t-2 border-slate-300 font-bold bg-slate-50 text-slate-800">
+                                            <td class="py-3 px-4" colspan="3">Total / کل میزان</td>
+                                            <td id="tb-total-debit" class="py-3 px-4 text-right">0.00</td>
+                                            <td id="tb-total-credit" class="py-3 px-4 text-right">0.00</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <!-- Report: Income & Expense -->
+                            <div id="rep-view-ie" class="report-viewport hidden space-y-6">
+                                <div class="flex items-center space-x-2 mb-4 bg-slate-50 p-2 rounded-xl w-max">
+                                    <button onclick="loadIncomeExpense('All')" id="ie-fund-all" class="px-3 py-1 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg shadow-sm">All Funds</button>
+                                    <button onclick="loadIncomeExpense('Unrestricted')" id="ie-fund-unrestricted" class="px-3 py-1 text-slate-600 text-xs font-bold rounded-lg">Unrestricted Only</button>
+                                    <button onclick="loadIncomeExpense('Restricted')" id="ie-fund-restricted" class="px-3 py-1 text-slate-600 text-xs font-bold rounded-lg">Restricted Only</button>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Income side -->
+                                    <div class="space-y-4">
+                                        <h3 class="font-bold text-slate-800 border-b pb-2 text-emerald-700">Income / آمدنی</h3>
+                                        <table class="w-full text-left text-sm">
+                                            <tbody id="ie-income-rows"></tbody>
+                                            <tfoot>
+                                                <tr class="font-bold border-t border-slate-200">
+                                                    <td class="py-3">Total Income</td>
+                                                    <td id="ie-total-income" class="py-3 text-right">0.00</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <!-- Expense side -->
+                                    <div class="space-y-4">
+                                        <h3 class="font-bold text-slate-800 border-b pb-2 text-rose-700">Expenses / اخراجات</h3>
+                                        <table class="w-full text-left text-sm">
+                                            <tbody id="ie-expense-rows"></tbody>
+                                            <tfoot>
+                                                <tr class="font-bold border-t border-slate-200">
+                                                    <td class="py-3">Total Expenses</td>
+                                                    <td id="ie-total-expense" class="py-3 text-right">0.00</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-xl flex items-center justify-between border">
+                                    <span class="font-bold text-slate-700">Surplus (Deficit) for the Year / سالانہ بچت</span>
+                                    <span id="ie-surplus" class="text-lg font-bold text-emerald-600">0.00 PKR</span>
+                                </div>
+                            </div>
+
+                            <!-- Report: Balance Sheet -->
+                            <div id="rep-view-bs" class="report-viewport hidden space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Assets -->
+                                    <div class="space-y-4">
+                                        <h3 class="font-bold text-slate-800 border-b pb-2 text-slate-700">Assets / اثاثہ جات</h3>
+                                        <table class="w-full text-left text-sm">
+                                            <tbody id="bs-assets-rows"></tbody>
+                                            <tfoot>
+                                                <tr class="font-bold border-t border-slate-200">
+                                                    <td class="py-3">Total Assets</td>
+                                                    <td id="bs-total-assets" class="py-3 text-right">0.00</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <!-- Liabilities & Funds -->
+                                    <div class="space-y-4">
+                                        <h3 class="font-bold text-slate-800 border-b pb-2 text-slate-700">Liabilities & Funds / واجبات و فنڈز</h3>
+                                        <table class="w-full text-left text-sm">
+                                            <tbody id="bs-liab-rows"></tbody>
+                                            <tfoot>
+                                                <tr class="font-bold border-t border-slate-200">
+                                                    <td class="py-3">Total Liabilities & Funds</td>
+                                                    <td id="bs-total-liab" class="py-3 text-right">0.00</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Report: Recent Vouchers -->
+                            <div id="rep-view-vouchers" class="report-viewport hidden">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="border-b border-slate-200 text-slate-400 text-xs font-bold uppercase">
+                                            <th class="py-3 px-4">Voucher No</th>
+                                            <th class="py-3 px-4">Date</th>
+                                            <th class="py-3 px-4">Type</th>
+                                            <th class="py-3 px-4">Narration</th>
+                                            <th class="py-3 px-4 text-right">Amount (PKR)</th>
+                                            <th class="py-3 px-4 text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="vouchers-rows"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. INVENTORY & POS VIEWPORT -->
+                <div id="view-inventory" class="view-panel hidden space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Inventory Management & Sales POS</h2>
+                            <p class="text-sm text-slate-400">FIFO Stock evaluation & Expensed Asset scrap sale logic</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="openRestockModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-100">
+                                📦 GRN Restock Items / خریداری درج کریں
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- POS Cashier Panel -->
+                        <div class="md:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6">
+                            <h3 class="font-bold text-slate-800 border-b pb-2 text-emerald-700">Point of Sales Desk / سیل کاؤنٹر</h3>
+                            
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Select Item / کتاب منتخب کریں</label>
+                                    <select id="pos-item-select" onchange="updatePOSPrice()" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Price (PKR)</label>
+                                    <input type="number" id="pos-price" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex space-x-4">
+                                    <div class="w-24">
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Quantity</label>
+                                        <input type="number" id="pos-qty" value="1" min="1" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center">
+                                    </div>
+                                    <div class="flex items-end">
+                                        <button onclick="addToCart()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all">
+                                            🛒 Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="pos-stock-alert" class="text-xs text-rose-600 font-bold hidden"></div>
+                            </div>
+
+                            <!-- Cart Table -->
+                            <div class="border rounded-xl overflow-hidden">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-50 border-b text-slate-500 font-bold text-xs uppercase">
+                                        <tr>
+                                            <th class="py-2.5 px-4">Item Name</th>
+                                            <th class="py-2.5 px-4 text-center">Quantity</th>
+                                            <th class="py-2.5 px-4 text-right">Price</th>
+                                            <th class="py-2.5 px-4 text-right">Total</th>
+                                            <th class="py-2.5 px-4 text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cart-rows"></tbody>
+                                    <tfoot>
+                                        <tr class="font-bold bg-slate-50">
+                                            <td class="py-3 px-4" colspan="3">Grand Total / کل رقم</td>
+                                            <td id="cart-total" class="py-3 px-4 text-right text-emerald-600 text-base">0.00 PKR</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <!-- Payment and Checkout -->
+                            <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border">
+                                <div class="flex items-center space-x-3">
+                                    <label class="text-sm font-bold text-slate-700">Payment Type:</label>
+                                    <select id="pos-payment-type" class="px-3 py-1.5 border rounded-lg text-xs bg-white focus:outline-none">
+                                        <option value="Cash">Cash (Immediate Receipt)</option>
+                                        <option value="Credit">Credit (Post to Debtors)</option>
+                                    </select>
+                                </div>
+                                <button onclick="checkoutPOS()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-100 hover:shadow-emerald-200 transition-all text-xs">
+                                    ✅ Process POS Checkout
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Inventory List and Stock Alert -->
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+                                <h3 class="font-bold text-slate-800 border-b pb-2 text-slate-700">Catalog & Stock status</h3>
+                                <div class="max-h-[300px] overflow-y-auto custom-scrollbar">
+                                    <table class="w-full text-left text-xs border-collapse">
+                                        <thead>
+                                            <tr class="border-b text-slate-400 font-bold uppercase">
+                                                <th class="py-2">Item SKU</th>
+                                                <th class="py-2">Item Name</th>
+                                                <th class="py-2 text-right">Stock</th>
+                                                <th class="py-2 text-center">Type</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inventory-list-rows"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Low Stock Alerts -->
+                            <div class="bg-rose-50 border border-rose-200 rounded-2xl p-5 space-y-3">
+                                <h4 class="font-bold text-rose-800 text-xs uppercase tracking-wider">⚠️ Low Stock Alerts / انوینٹری وارننگ</h4>
+                                <ul id="low-stock-list" class="text-xs text-rose-700 space-y-1 list-disc list-inside"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. LIBRARY VIEWPORT -->
+                <div id="view-library" class="view-panel hidden space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Library Circulation Desk</h2>
+                            <p class="text-sm text-slate-400">Accession cataloging, members database, and issue/returns log</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="openBookModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-100">
+                                📚 Catalog New Book / نئی کتاب درج کریں
+                            </button>
+                            <button onclick="openMemberModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold">
+                                👥 Register Member
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Left Panel: Issue Book and Active Loans -->
+                        <div class="md:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6">
+                            <h3 class="font-bold text-slate-800 border-b pb-2 text-emerald-700">Issue Book to Member / اجراء رجسٹر</h3>
+                            
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Select Book / کتاب منتخب کریں</label>
+                                    <select id="issue-book-select" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Select Member / ممبر</label>
+                                    <select id="issue-member-select" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none"></select>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex space-x-4">
+                                    <div class="w-28">
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Duration (Days)</label>
+                                        <input type="number" id="issue-days" value="14" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none text-center">
+                                    </div>
+                                    <div class="flex items-end">
+                                        <button onclick="processBookIssue()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-100 transition-all">
+                                            ✅ Issue Book
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Active Loans Log -->
+                            <div class="border rounded-xl overflow-hidden mt-6">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-50 border-b text-slate-500 font-bold text-xs uppercase">
+                                        <tr>
+                                            <th class="py-2.5 px-4">Book Title</th>
+                                            <th class="py-2.5 px-4">Member Name</th>
+                                            <th class="py-2.5 px-4 text-center">Issue Date</th>
+                                            <th class="py-2.5 px-4 text-center">Due Date</th>
+                                            <th class="py-2.5 px-4 text-center">Fine Status</th>
+                                            <th class="py-2.5 px-4 text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="loan-rows"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Books Inventory list -->
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+                            <h3 class="font-bold text-slate-800 border-b pb-2 text-slate-700">Catalog Registry</h3>
+                            <div class="max-h-[400px] overflow-y-auto custom-scrollbar">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="border-b text-slate-400 font-bold uppercase">
+                                            <th class="py-2">Acc No</th>
+                                            <th class="py-2">Book Title</th>
+                                            <th class="py-2 text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="books-list-rows"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. FIXED ASSETS VIEWPORT -->
+                <div id="view-assets" class="view-panel hidden space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Fixed Assets Register</h2>
+                            <p class="text-sm text-slate-400">Capitalization tracker & depreciation automated runs</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="openAssetModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-100">
+                                🏢 Capitalize New Asset / اثاثہ درج کریں
+                            </button>
+                            <button onclick="runAssetsDepreciation()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold">
+                                📉 Run Depreciation / فرسودگی کا اندراج
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="border-b border-slate-200 text-slate-400 text-xs font-bold uppercase">
+                                        <th class="py-3 px-4">Asset Name</th>
+                                        <th class="py-3 px-4">Category</th>
+                                        <th class="py-3 px-4 text-center">Purchase Date</th>
+                                        <th class="py-3 px-4 text-right">Historical Cost</th>
+                                        <th class="py-3 px-4 text-center">Depr. Rate (%)</th>
+                                        <th class="py-3 px-4 text-center">Method</th>
+                                        <th class="py-3 px-4 text-right">Written Down Value (WDV)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assets-rows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. HR & PAYROLL VIEWPORT -->
+                <div id="view-payroll" class="view-panel hidden space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">HR & Staff Payroll Run</h2>
+                            <p class="text-sm text-slate-400">Manage payroll calculations and print monthly pay slips</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Left Panel: Process Salary -->
+                        <div class="md:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6">
+                            <h3 class="font-bold text-slate-800 border-b pb-2 text-emerald-700">Salary Disbursement Form / تنخواہ کا اندراج</h3>
+                            <form onsubmit="handlePayrun(event)" class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Staff Name / ملازم کا نام</label>
+                                        <select id="pay-staff-select" onchange="autofillSalary()" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none"></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Month & Year / مہینہ</label>
+                                        <input type="text" id="pay-month" placeholder="July 2026" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Basic Salary (PKR)</label>
+                                        <input type="number" id="pay-basic" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Allowances (PKR)</label>
+                                        <input type="number" id="pay-allowance" value="0" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">Deductions (PKR)</label>
+                                        <input type="number" id="pay-deductions" value="0" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-100 hover:shadow-emerald-200 transition-all text-xs">
+                                    ✅ Process Salary Payout
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Right Panel: Payroll Run history -->
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+                            <h3 class="font-bold text-slate-800 border-b pb-2 text-slate-700">Payroll Log / تاریخچہ</h3>
+                            <div class="max-h-[300px] overflow-y-auto custom-scrollbar">
+                                <div id="payroll-history-list" class="space-y-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. AUDIT TRAIL VIEWPORT -->
+                <div id="view-audit" class="view-panel hidden space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Security Audit Log Trails</h2>
+                            <p class="text-sm text-slate-400">Complete immutable record of system changes</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="border-b border-slate-200 text-slate-400 text-xs font-bold uppercase">
+                                        <th class="py-3 px-4">Timestamp</th>
+                                        <th class="py-3 px-4">Operator</th>
+                                        <th class="py-3 px-4">Action</th>
+                                        <th class="py-3 px-4">Table</th>
+                                        <th class="py-3 px-4">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-rows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL: NEW VOUCHER ENTRY -->
+    <div id="voucher-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar border">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800">New Journal Voucher / نیا واؤچر اندراج</h3>
+                <button onclick="closeVoucherModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <form onsubmit="handleVoucherSubmit(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Voucher Date</label>
+                        <input type="date" id="v-date" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Voucher Type</label>
+                        <select id="v-type" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none">
+                            <option value="Journal">Journal Voucher (JV)</option>
+                            <option value="Payment">Payment Voucher (PV)</option>
+                            <option value="Receipt">Receipt Voucher (RV)</option>
+                            <option value="Contra">Contra Voucher (CV)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Narration / تفصیل</label>
+                    <input type="text" id="v-narration" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-sm focus:outline-none" placeholder="General description">
+                </div>
+
+                <!-- Transaction Lines Table -->
+                <div class="space-y-2 border rounded-xl p-4 bg-slate-50">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Debit/Credit lines</div>
+                    
+                    <div id="v-lines-container" class="space-y-3"></div>
+                    
+                    <button type="button" onclick="addVoucherLine()" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-2 block">
+                        ➕ Add Another Debit/Credit Line
+                    </button>
+                </div>
+
+                <!-- Validation Alerts -->
+                <div class="flex justify-between items-center text-xs font-bold bg-slate-100 p-3 rounded-xl">
+                    <div class="text-slate-600">Total Debit: <span id="v-tot-debit" class="text-emerald-600">0.00</span> PKR</div>
+                    <div class="text-slate-600">Total Credit: <span id="v-tot-credit" class="text-rose-600">0.00</span> PKR</div>
+                </div>
+
+                <div id="v-validation-alert" class="text-xs text-rose-600 font-bold hidden text-center"></div>
+
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeVoucherModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-100">Post Voucher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD FIXED ASSET -->
+    <div id="asset-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border">
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="text-base font-bold text-slate-800">Capitalize Fixed Asset</h3>
+                <button onclick="closeAssetModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <form onsubmit="handleAssetSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Asset Name</label>
+                    <input type="text" id="asset-name" placeholder="E.g., Printing Press Machine" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Category</label>
+                    <select id="asset-cat" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                        <option value="IT Hardware">IT Hardware</option>
+                        <option value="Furniture">Furniture</option>
+                        <option value="Machinery">Machinery / Printing</option>
+                        <option value="Vehicles">Vehicles</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Purchase Date</label>
+                        <input type="date" id="asset-date" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Cost (PKR)</label>
+                        <input type="number" id="asset-cost" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Depr. Rate (%)</label>
+                        <input type="number" id="asset-rate" value="10" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Method</label>
+                        <select id="asset-method" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                            <option value="StraightLine">Straight Line</option>
+                            <option value="ReducingBalance">Reducing Balance</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeAssetModal()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold">Capitalize</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD BOOK -->
+    <div id="book-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border">
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="text-base font-bold text-slate-800">Catalog New Reference Book</h3>
+                <button onclick="closeBookModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <form onsubmit="handleBookSubmit(event)" class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Accession No / نمبر شمار</label>
+                        <input type="text" id="bk-acc" placeholder="E.g., ACC-111" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">ISBN</label>
+                        <input type="text" id="bk-isbn" placeholder="Optional" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Title / کتاب کا نام</label>
+                    <input type="text" id="bk-title" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Author / مصنف</label>
+                    <input type="text" id="bk-author" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Publisher</label>
+                        <input type="text" id="bk-pub" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Cost (PKR)</label>
+                        <input type="number" id="bk-cost" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Category</label>
+                    <input type="text" id="bk-cat" placeholder="E.g., History, Economy" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                </div>
+                
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeBookModal()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold">Catalog Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD MEMBER -->
+    <div id="member-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border">
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="text-base font-bold text-slate-800">Register Library Member</h3>
+                <button onclick="closeMemberModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <form onsubmit="handleMemberSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Member Name / نام</label>
+                    <input type="text" id="mem-name" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Member Type</label>
+                        <select id="mem-type" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                            <option value="External">External Scholar</option>
+                            <option value="Staff">IPS Staff</option>
+                            <option value="Student">Student / Intern</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Membership (Days)</label>
+                        <input type="number" id="mem-days" value="365" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs text-center">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Email</label>
+                    <input type="email" id="mem-email" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Phone</label>
+                    <input type="text" id="mem-phone" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                </div>
+                
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeMemberModal()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: GRN RESTOCK ITEMS -->
+    <div id="restock-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border">
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="text-base font-bold text-slate-800">GRN Goods Receipt / خریداری درج کریں</h3>
+                <button onclick="closeRestockModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <form onsubmit="handleRestockSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Select Catalog Item</label>
+                    <select id="restock-item-select" class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs focus:outline-none"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Quantity Received</label>
+                        <input type="number" id="restock-qty" value="10" min="1" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs text-center">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Unit Cost (PKR)</label>
+                        <input type="number" id="restock-cost" required class="w-full px-3 py-2 border rounded-xl bg-slate-50 text-xs">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeRestockModal()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold">Post GRN Purchase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT STATE ENGINE -->
+    <script>
+        const API_URL = "";
+        let jwtToken = localStorage.getItem("ips_jwt") || "";
+        let userRole = localStorage.getItem("ips_role") || "";
+        let username = localStorage.getItem("ips_user") || "";
+        let currentTab = "accounting";
+        let activeReportTab = "tb";
+        let cart = [];
+        
+        let globalAccounts = [];
+        let globalItems = [];
+        let globalDonors = [];
+        let globalBooks = [];
+        let globalMembers = [];
+        let globalAssets = [];
+        let globalVouchers = [];
+        
+        const demoStaff = [
+            { name: "Dr. Anis Ahmad", role: "Director", salary: 150000.0 },
+            { name: "Prof. Khalid Rahman", role: "Senior Scholar", salary: 120000.0 },
+            { name: "Sajid Mahmood", role: "Chief Accountant", salary: 85000.0 },
+            { name: "Sarah Khan", role: "Librarian Specialist", salary: 65000.0 },
+            { name: "Zubair Ansari", role: "Office Assistant", salary: 45000.0 }
+        ];
+
+        // 1. Session Initialization
+        document.addEventListener("DOMContentLoaded", () => {
+            if (jwtToken) {
+                showAppPanel();
+            } else {
+                showLoginPanel();
+            }
+        });
+
+        function showLoginPanel() {
+            document.getElementById("login-panel").classList.remove("hidden");
+            document.getElementById("app-panel").classList.add("hidden");
+        }
+
+        function showAppPanel() {
+            document.getElementById("login-panel").classList.add("hidden");
+            document.getElementById("app-panel").classList.remove("hidden");
+            document.getElementById("nav-user").innerText = username;
+            document.getElementById("nav-role").innerText = userRole;
+            
+            enforceRolePermissions();
+            switchTab(currentTab);
+        }
+
+        function enforceRolePermissions() {
+            // Hide tabs depending on roles
+            const allTabs = ["tab-accounting", "tab-inventory", "tab-library", "tab-assets", "tab-payroll", "tab-audit"];
+            
+            // Default show all
+            allTabs.forEach(tid => document.getElementById(tid).classList.remove("hidden"));
+            
+            if (userRole === "Librarian") {
+                // Librarians only need Library
+                ["tab-accounting", "tab-inventory", "tab-assets", "tab-payroll", "tab-audit"].forEach(tid => {
+                    document.getElementById(tid).classList.add("hidden");
+                });
+                currentTab = "library";
+            } else if (userRole === "Salesperson") {
+                // Salespeople only need Inventory/POS
+                ["tab-accounting", "tab-library", "tab-assets", "tab-payroll", "tab-audit"].forEach(tid => {
+                    document.getElementById(tid).classList.add("hidden");
+                });
+                currentTab = "inventory";
+            }
+        }
+
+        // Quick login fill-in and dispatch
+        function quickLogin(user, pass) {
+            document.getElementById("username").value = user;
+            document.getElementById("password").value = pass;
+            handleLogin(new Event("submit"));
+        }
+
+        async function handleLogin(e) {
+            if (e) e.preventDefault();
+            const user = document.getElementById("username").value;
+            const pass = document.getElementById("password").value;
+            const errorDiv = document.getElementById("login-error");
+            
+            try {
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.detail || "Authentication failed");
+                }
+                const data = await res.json();
+                jwtToken = data.access_token;
+                userRole = data.role;
+                username = data.username;
+                
+                localStorage.setItem("ips_jwt", jwtToken);
+                localStorage.setItem("ips_role", userRole);
+                localStorage.setItem("ips_user", username);
+                
+                errorDiv.classList.add("hidden");
+                showAppPanel();
+            } catch (err) {
+                errorDiv.innerText = err.message;
+                errorDiv.classList.remove("hidden");
+            }
+        }
+
+        function handleLogout() {
+            localStorage.clear();
+            jwtToken = "";
+            userRole = "";
+            username = "";
+            showLoginPanel();
+        }
+
+        // REST fetch client utility
+        async function apiFetch(endpoint, options = {}) {
+            if (!options.headers) options.headers = {};
+            options.headers["Authorization"] = `Bearer ${jwtToken}`;
+            
+            const res = await fetch(`${API_URL}${endpoint}`, options);
+            if (res.status === 401) {
+                handleLogout();
+                return null;
+            }
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.detail || "Request failed");
+            }
+            return res.json();
+        }
+
+        // View Switching System
+        function switchTab(tabName) {
+            currentTab = tabName;
+            document.querySelectorAll(".view-panel").forEach(panel => panel.classList.add("hidden"));
+            document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("bg-emerald-600", "text-white"));
+            
+            document.getElementById(`view-${tabName}`).classList.remove("hidden");
+            document.getElementById(`tab-${tabName}`).classList.add("bg-emerald-600", "text-white");
+            
+            // Load corresponding module data
+            if (tabName === "accounting") {
+                loadFinancialReports();
+            } else if (tabName === "inventory") {
+                loadInventoryModule();
+            } else if (tabName === "library") {
+                loadLibraryModule();
+            } else if (tabName === "assets") {
+                loadAssetsModule();
+            } else if (tabName === "payroll") {
+                loadPayrollModule();
+            } else if (tabName === "audit") {
+                loadAuditTrail();
+            }
+        }
+
+        /* =========================================================================
+           ACCOUNTING SYSTEM MODULE
+           ========================================================================= */
+        async function loadFinancialReports() {
+            try {
+                globalAccounts = await apiFetch("/accounting/accounts");
+                
+                // Set bank/cash balance summaries in cards
+                const bankAcc = globalAccounts.find(a => a.code === "1002");
+                const genFund = globalAccounts.find(a => a.code === "3000");
+                const resFund = globalAccounts.find(a => a.code === "3100");
+                const fineAcc = globalAccounts.find(a => a.code === "4004");
+                
+                document.getElementById("card-bank-bal").innerText = `${(bankAcc ? bankAcc.balance : 0).toLocaleString()} PKR`;
+                document.getElementById("card-unrestricted-bal").innerText = `${(genFund ? -genFund.balance : 0).toLocaleString()} PKR`;
+                document.getElementById("card-restricted-bal").innerText = `${(resFund ? -resFund.balance : 0).toLocaleString()} PKR`;
+                document.getElementById("card-library-fines").innerText = `${(fineAcc ? -fineAcc.balance : 0).toLocaleString()} PKR`;
+                
+                switchReportTab(activeReportTab);
+            } catch (e) {
+                alert("Accounting Load Error: " + e.message);
+            }
+        }
+
+        function switchReportTab(reportName) {
+            activeReportTab = reportName;
+            document.querySelectorAll(".report-viewport").forEach(el => el.classList.add("hidden"));
+            document.querySelectorAll("[id^='rep-tab-']").forEach(el => el.className = "px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-100 transition-all");
+            
+            document.getElementById(`rep-view-${reportName}`).classList.remove("hidden");
+            document.getElementById(`rep-tab-${reportName}`).className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white transition-all";
+            
+            if (reportName === "tb") loadTrialBalance();
+            if (reportName === "ie") loadIncomeExpense("All");
+            if (reportName === "bs") loadBalanceSheet();
+            if (reportName === "vouchers") loadVouchersList();
+        }
+
+        async function loadTrialBalance() {
+            try {
+                const data = await apiFetch("/accounting/reports/trial-balance");
+                const tbody = document.getElementById("trial-balance-rows");
+                tbody.innerHTML = "";
+                data.records.forEach(r => {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="py-3 px-4 font-mono text-xs">${r.code}</td>
+                            <td class="py-3 px-4 font-bold text-slate-700">${r.name}</td>
+                            <td class="py-3 px-4 text-xs font-semibold text-slate-400 uppercase">${r.type}</td>
+                            <td class="py-3 px-4 text-right font-mono">${r.debit > 0 ? r.debit.toLocaleString() : "-"}</td>
+                            <td class="py-3 px-4 text-right font-mono">${r.credit > 0 ? r.credit.toLocaleString() : "-"}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById("tb-total-debit").innerText = data.total_debit.toLocaleString();
+                document.getElementById("tb-total-credit").innerText = data.total_credit.toLocaleString();
+            } catch (e) {
+                alert("Trial Balance Error: " + e.message);
+            }
+        }
+
+        async function loadIncomeExpense(fundType) {
+            try {
+                document.querySelectorAll("[id^='ie-fund-']").forEach(btn => btn.className = "px-3 py-1 text-slate-600 text-xs font-bold rounded-lg");
+                const activeBtnId = fundType === "All" ? "ie-fund-all" : (fundType === "Unrestricted" ? "ie-fund-unrestricted" : "ie-fund-restricted");
+                document.getElementById(activeBtnId).className = "px-3 py-1 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg shadow-sm";
+
+                const data = await apiFetch(`/accounting/reports/income-expense?fund_type=${fundType}`);
+                const incomeTbody = document.getElementById("ie-income-rows");
+                const expenseTbody = document.getElementById("ie-expense-rows");
+                
+                incomeTbody.innerHTML = "";
+                data.incomes.forEach(i => {
+                    incomeTbody.innerHTML += `
+                        <tr class="border-b border-slate-100">
+                            <td class="py-3 font-semibold">${i.name} <span class="text-[9px] text-slate-400 font-bold uppercase">(${i.fund_type})</span></td>
+                            <td class="py-3 text-right font-mono">${i.amount.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById("ie-total-income").innerText = data.total_income.toLocaleString();
+
+                expenseTbody.innerHTML = "";
+                data.expenses.forEach(e => {
+                    expenseTbody.innerHTML += `
+                        <tr class="border-b border-slate-100">
+                            <td class="py-3 font-semibold">${e.name}</td>
+                            <td class="py-3 text-right font-mono">${e.amount.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById("ie-total-expense").innerText = data.total_expense.toLocaleString();
+                
+                const surplusEl = document.getElementById("ie-surplus");
+                surplusEl.innerText = `${data.surplus.toLocaleString()} PKR`;
+                if (data.surplus < 0) {
+                    surplusEl.className = "text-lg font-bold text-rose-600";
+                } else {
+                    surplusEl.className = "text-lg font-bold text-emerald-600";
+                }
+            } catch (e) {
+                alert("Income/Expense Error: " + e.message);
+            }
+        }
+
+        async function loadBalanceSheet() {
+            try {
+                const data = await apiFetch("/accounting/reports/balance-sheet");
+                const assetsTbody = document.getElementById("bs-assets-rows");
+                const liabTbody = document.getElementById("bs-liab-rows");
+                
+                assetsTbody.innerHTML = "";
+                data.assets.forEach(a => {
+                    assetsTbody.innerHTML += `
+                        <tr class="border-b border-slate-100">
+                            <td class="py-3 font-semibold">${a.name}</td>
+                            <td class="py-3 text-right font-mono">${a.amount.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById("bs-total-assets").innerText = data.total_assets.toLocaleString();
+
+                liabTbody.innerHTML = "";
+                data.liabilities.forEach(l => {
+                    liabTbody.innerHTML += `
+                        <tr class="border-b border-slate-100">
+                            <td class="py-3 font-semibold">${l.name}</td>
+                            <td class="py-3 text-right font-mono">${l.amount.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+                data.equity_funds.forEach(f => {
+                    liabTbody.innerHTML += `
+                        <tr class="border-b border-slate-100">
+                            <td class="py-3 font-semibold">${f.name}</td>
+                            <td class="py-3 text-right font-mono">${f.amount.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById("bs-total-liab").innerText = data.total_liabilities_and_funds.toLocaleString();
+            } catch (e) {
+                alert("Balance Sheet Error: " + e.message);
+            }
+        }
+
+        async function loadVouchersList() {
+            try {
+                globalVouchers = await apiFetch("/accounting/vouchers");
+                const tbody = document.getElementById("vouchers-rows");
+                tbody.innerHTML = "";
+                globalVouchers.forEach(v => {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="py-3 px-4 font-mono font-bold text-slate-700">${v.voucher_no}</td>
+                            <td class="py-3 px-4">${v.date}</td>
+                            <td class="py-3 px-4 font-semibold text-xs text-emerald-600">${v.type}</td>
+                            <td class="py-3 px-4 text-slate-500">${v.narration}</td>
+                            <td class="py-3 px-4 text-right font-mono">${(v.amount || 0).toLocaleString()}</td>
+                            <td class="py-3 px-4 text-center">
+                                <button onclick="printVoucher('${v.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded text-[10px]">Print Slip</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                alert("Vouchers Load Error: " + e.message);
+            }
+        }
+
+        async function printVoucher(voucherId) {
+            try {
+                const data = await apiFetch(`/accounting/vouchers/${voucherId}`);
+                const v = data.voucher;
+                const lines = data.lines;
+                
+                const printWindow = window.open("", "_blank");
+                let linesHtml = "";
+                lines.forEach(l => {
+                    linesHtml += `
+                        <tr>
+                            <td style="padding:8px; border:1px solid #ccc;">${l.account_code} - ${l.account_name}</td>
+                            <td style="padding:8px; border:1px solid #ccc;">${l.description || ""}</td>
+                            <td style="padding:8px; border:1px solid #ccc; text-align:right;">${l.debit > 0 ? l.debit.toFixed(2) : "-"}</td>
+                            <td style="padding:8px; border:1px solid #ccc; text-align:right;">${l.credit > 0 ? l.credit.toFixed(2) : "-"}</td>
+                        </tr>
+                    `;
+                });
+
+                printWindow.document.write(`
+                    <html>
+                    <head><title>IPS Slip: ${v.voucher_no}</title></head>
+                    <body style="font-family:sans-serif; padding:40px;">
+                        <h2 style="text-align:center; color:#047857; margin-bottom:2px;">INSTITUTE OF POLICY STUDIES</h2>
+                        <p style="text-align:center; font-size:11px; margin-top:0; color:#666;">Nasr Chambers, 1, MPCHS Commercial, E-11/3, Islamabad, Pakistan | Ph: +92 51 843 8391</p>
+                        <hr style="border:1px solid #ccc; margin:20px 0;">
+                        <table style="width:100%; margin-bottom:20px; font-size:14px;">
+                            <tr>
+                                <td><b>Voucher No:</b> ${v.voucher_no}</td>
+                                <td style="text-align:right;"><b>Date:</b> ${v.date}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Voucher Type:</b> ${v.type}</td>
+                                <td style="text-align:right;"><b>Operator:</b> ${v.created_by}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><b>Narration / تفصیل:</b> ${v.narration}</td>
+                            </tr>
+                        </table>
+                        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                            <thead>
+                                <tr style="background:#f1f5f9;">
+                                    <th style="padding:8px; border:1px solid #ccc; text-align:left;">Account</th>
+                                    <th style="padding:8px; border:1px solid #ccc; text-align:left;">Line Details</th>
+                                    <th style="padding:8px; border:1px solid #ccc; text-align:right;">Debit (PKR)</th>
+                                    <th style="padding:8px; border:1px solid #ccc; text-align:right;">Credit (PKR)</th>
+                                </tr>
+                            </thead>
+                            <tbody>${linesHtml}</tbody>
+                        </table>
+                        <div style="margin-top:60px; display:flex; justify-content:space-between; font-size:12px;">
+                            <div>_______________________<br>Prepared By (اکاؤنٹنٹ)</div>
+                            <div>_______________________<br>Approved By (ڈائریکٹر)</div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            } catch (e) {
+                alert("Voucher Print Error: " + e.message);
+            }
+        }
+
+        // Voucher Modal controls
+        function openVoucherModal() {
+            document.getElementById("v-date").value = new Date().toISOString().split("T")[0];
+            document.getElementById("v-lines-container").innerHTML = "";
+            addVoucherLine();
+            addVoucherLine(); // Start with 2 lines for debit/credit default
+            updateVoucherTotals();
+            
+            document.getElementById("voucher-modal").classList.remove("hidden");
+        }
+
+        function closeVoucherModal() {
+            document.getElementById("voucher-modal").classList.add("hidden");
+        }
+
+        function addVoucherLine() {
+            const container = document.getElementById("v-lines-container");
+            const index = container.children.length;
+            
+            let options = globalAccounts.map(a => `<option value="${a.id}">${a.code} - ${a.name}</option>`).join("");
+            let donorOptions = `<option value="">-- No Donor --</option>` + globalDonors.map(d => `<option value="${d.id}">${d.name}</option>`).join("");
+            
+            const div = document.createElement("div");
+            div.className = "flex space-x-2 items-center bg-white p-3 rounded-lg border";
+            div.innerHTML = `
+                <div class="flex-1">
+                    <select class="v-acc-select w-full px-2 py-1.5 border rounded-lg text-xs bg-slate-50 focus:outline-none" onchange="updateVoucherTotals()">
+                        ${options}
+                    </select>
+                </div>
+                <div class="w-24">
+                    <input type="number" step="any" class="v-debit-input w-full px-2 py-1.5 border rounded-lg text-xs text-right" placeholder="Debit" value="0" oninput="updateVoucherTotals()">
+                </div>
+                <div class="w-24">
+                    <input type="number" step="any" class="v-credit-input w-full px-2 py-1.5 border rounded-lg text-xs text-right" placeholder="Credit" value="0" oninput="updateVoucherTotals()">
+                </div>
+                <div class="flex-1">
+                    <input type="text" class="v-desc-input w-full px-2 py-1.5 border rounded-lg text-xs" placeholder="Memo line">
+                </div>
+                <div class="w-28">
+                    <select class="v-donor-select w-full px-2 py-1.5 border rounded-lg text-xs bg-slate-50 focus:outline-none">
+                        ${donorOptions}
+                    </select>
+                </div>
+                <button type="button" onclick="this.parentNode.remove(); updateVoucherTotals();" class="text-rose-500 font-bold text-sm px-1.5">&times;</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function updateVoucherTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+            
+            document.querySelectorAll(".v-debit-input").forEach(el => totalDebit += parseFloat(el.value || 0));
+            document.querySelectorAll(".v-credit-input").forEach(el => totalCredit += parseFloat(el.value || 0));
+            
+            document.getElementById("v-tot-debit").innerText = totalDebit.toLocaleString();
+            document.getElementById("v-tot-credit").innerText = totalCredit.toLocaleString();
+            
+            const alertEl = document.getElementById("v-validation-alert");
+            if (Math.abs(totalDebit - totalCredit) > 0.001) {
+                alertEl.innerText = `Balance out of alignment: Difference is ${Math.abs(totalDebit - totalCredit).toFixed(2)} PKR`;
+                alertEl.classList.remove("hidden");
+            } else {
+                alertEl.classList.add("hidden");
+            }
+        }
+
+        async function handleVoucherSubmit(e) {
+            e.preventDefault();
+            const date = document.getElementById("v-date").value;
+            const type = document.getElementById("v-type").value;
+            const narration = document.getElementById("v-narration").value;
+            
+            const lines = [];
+            let isValid = true;
+            
+            document.querySelectorAll("#v-lines-container > div").forEach(div => {
+                const account_id = parseInt(div.querySelector(".v-acc-select").value);
+                const debit = parseFloat(div.querySelector(".v-debit-input").value || 0);
+                const credit = parseFloat(div.querySelector(".v-credit-input").value || 0);
+                const description = div.querySelector(".v-desc-input").value;
+                const donor_id_val = div.querySelector(".v-donor-select").value;
+                const donor_id = donor_id_val ? parseInt(donor_id_val) : null;
+                
+                if (debit === 0 && credit === 0) isValid = false;
+                
+                lines.push({ account_id, debit, credit, description, donor_id });
+            });
+            
+            if (!isValid) {
+                alert("Error: All lines must have either a Debit or a Credit value!");
+                return;
+            }
+            
+            try {
+                await apiFetch("/accounting/vouchers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ date, type, narration, lines })
+                });
+                closeVoucherModal();
+                loadFinancialReports();
+            } catch (err) {
+                alert("Voucher Post Error: " + err.message);
+            }
+        }
+
+        /* =========================================================================
+           SALES & INVENTORY MODULE
+           ========================================================================= */
+        async function loadInventoryModule() {
+            try {
+                globalItems = await apiFetch("/inventory/items");
+                globalDonors = await apiFetch("/accounting/donors");
+
+                // Populate POS dropdown
+                const select = document.getElementById("pos-item-select");
+                select.innerHTML = globalItems.map(i => `
+                    <option value="${i.id}">${i.sku} - ${i.name} (Qty: ${i.stock_quantity})
+                        ${i.is_expensed_asset ? ' *Expensed Asset*' : ''}
+                    </option>`).join("");
+                
+                updatePOSPrice();
+                renderInventoryList();
+            } catch (e) {
+                alert("Inventory Load Error: " + e.message);
+            }
+        }
+
+        function updatePOSPrice() {
+            const itemId = parseInt(document.getElementById("pos-item-select").value);
+            const item = globalItems.find(i => i.id === itemId);
+            if (item) {
+                document.getElementById("pos-price").value = item.sale_price;
+            }
+        }
+
+        function renderInventoryList() {
+            const tbody = document.getElementById("inventory-list-rows");
+            const alertList = document.getElementById("low-stock-list");
+            
+            tbody.innerHTML = "";
+            alertList.innerHTML = "";
+            
+            globalItems.forEach(i => {
+                const expensedTag = i.is_expensed_asset ? `<span class="px-1.5 py-0.5 bg-rose-100 text-rose-700 rounded font-bold" style="font-size:9px;">Expensed Scrap</span>` : `<span class="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded font-bold" style="font-size:9px;">Normal</span>`;
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="py-2.5 font-mono">${i.sku}</td>
+                        <td class="py-2.5 font-bold">${i.name}</td>
+                        <td class="py-2.5 text-right font-mono ${i.stock_quantity <= i.low_stock_threshold ? 'text-rose-600 font-bold' : ''}">${i.stock_quantity}</td>
+                        <td class="py-2.5 text-center">${expensedTag}</td>
+                    </tr>
+                `;
+                
+                if (i.stock_quantity <= i.low_stock_threshold) {
+                    alertList.innerHTML += `<li>Item ${i.name} (SKU: ${i.sku}) stock is low! Current Qty: <b>${i.stock_quantity}</b></li>`;
+                }
+            });
+        }
+
+        function addToCart() {
+            const itemId = parseInt(document.getElementById("pos-item-select").value);
+            const qty = parseInt(document.getElementById("pos-qty").value);
+            const price = parseFloat(document.getElementById("pos-price").value);
+            
+            const item = globalItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            // Check if already in cart
+            const cartItem = cart.find(c => c.item_id === itemId);
+            const totalQty = (cartItem ? cartItem.quantity : 0) + qty;
+            
+            if (totalQty > item.stock_quantity) {
+                alert(`Insufficient stock. Only ${item.stock_quantity} available!`);
+                return;
+            }
+
+            if (cartItem) {
+                cartItem.quantity = totalQty;
+            } else {
+                cart.push({ item_id: itemId, name: item.name, quantity: qty, price: price });
+            }
+            renderCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        function renderCart() {
+            const tbody = document.getElementById("cart-rows");
+            tbody.innerHTML = "";
+            let grandTotal = 0;
+            
+            cart.forEach((c, idx) => {
+                const lineTotal = c.quantity * c.price;
+                grandTotal += lineTotal;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="py-2.5 px-4 font-bold">${c.name}</td>
+                        <td class="py-2.5 px-4 text-center font-mono">${c.quantity}</td>
+                        <td class="py-2.5 px-4 text-right font-mono">${c.price.toLocaleString()}</td>
+                        <td class="py-2.5 px-4 text-right font-mono">${lineTotal.toLocaleString()}</td>
+                        <td class="py-2.5 px-4 text-center">
+                            <button onclick="removeFromCart(${idx})" class="text-rose-500 font-bold">&times;</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById("cart-total").innerText = `${grandTotal.toLocaleString()} PKR`;
+        }
+
+        async function checkoutPOS() {
+            if (cart.length === 0) {
+                alert("Cart is empty!");
+                return;
+            }
+            const payment_method = document.getElementById("pos-payment-type").value;
+            const lines = cart.map(c => ({ item_id: c.item_id, quantity: c.quantity, price: c.price }));
+            
+            try {
+                const res = await apiFetch("/inventory/pos-sale", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ payment_method, lines })
+                });
+                alert(`POS Checkout Completed! Posted Invoice: ${res.voucher_no}`);
+                cart = [];
+                renderCart();
+                loadInventoryModule();
+            } catch (e) {
+                alert("POS Checkout Error: " + e.message);
+            }
+        }
+
+        function openRestockModal() {
+            const select = document.getElementById("restock-item-select");
+            select.innerHTML = globalItems.map(i => `<option value="${i.id}">${i.name}</option>`).join("");
+            document.getElementById("restock-modal").classList.remove("hidden");
+        }
+
+        function closeRestockModal() {
+            document.getElementById("restock-modal").classList.add("hidden");
+        }
+
+        async function handleRestockSubmit(e) {
+            e.preventDefault();
+            const item_id = parseInt(document.getElementById("restock-item-select").value);
+            const quantity = parseInt(document.getElementById("restock-qty").value);
+            const unit_cost = parseFloat(document.getElementById("restock-cost").value);
+            
+            try {
+                await apiFetch("/inventory/restock", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ item_id, quantity, unit_cost })
+                });
+                closeRestockModal();
+                loadInventoryModule();
+            } catch (err) {
+                alert("Restock Post Error: " + err.message);
+            }
+        }
+
+        /* =========================================================================
+           LIBRARY CIRCULATION MODULE
+           ========================================================================= */
+        async function loadLibraryModule() {
+            try {
+                globalBooks = await apiFetch("/library/books");
+                globalMembers = await apiFetch("/library/members");
+                
+                // Populate Dropdowns
+                const bookSelect = document.getElementById("issue-book-select");
+                const memSelect = document.getElementById("issue-member-select");
+                
+                bookSelect.innerHTML = globalBooks
+                    .filter(b => b.status === "Available")
+                    .map(b => `<option value="${b.id}">${b.accession_no} - ${b.title}</option>`).join("");
+                    
+                memSelect.innerHTML = globalMembers
+                    .filter(m => m.status === "Active")
+                    .map(m => `<option value="${m.id}">${m.name} (${m.member_type})</option>`).join("");
+
+                renderLibraryCatalog();
+                renderCirculationLoans();
+            } catch (e) {
+                alert("Library Load Error: " + e.message);
+            }
+        }
+
+        function renderLibraryCatalog() {
+            const tbody = document.getElementById("books-list-rows");
+            tbody.innerHTML = "";
+            globalBooks.forEach(b => {
+                const statusTag = b.status === "Available" ? `<span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded font-bold" style="font-size:9px;">Available</span>` : (b.status === "Borrowed" ? `<span class="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-bold" style="font-size:9px;">Borrowed</span>` : `<span class="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded font-bold" style="font-size:9px;">Reference</span>`);
+                tbody.innerHTML += `
+                    <tr class="border-b text-xs">
+                        <td class="py-2.5 font-mono">${b.accession_no}</td>
+                        <td class="py-2.5 font-bold">${b.title} <span class="text-slate-400 block font-normal">${b.author}</span></td>
+                        <td class="py-2.5 text-center">${statusTag}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function renderCirculationLoans() {
+            try {
+                const loans = await apiFetch("/library/reports/loans");
+                const tbody = document.getElementById("loan-rows");
+                tbody.innerHTML = "";
+                
+                loans.forEach(l => {
+                    let fineTag = l.fine_amount > 0 ? `<span class="text-rose-600 font-bold">${l.fine_amount} PKR</span>` : `<span class="text-emerald-600 font-semibold">-</span>`;
+                    let actionBtn = "";
+                    if (l.status === "Issued") {
+                        actionBtn = `<button onclick="returnBook('${l.id}')" class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-bold">Return Book</button>`;
+                    } else if (l.fine_amount > 0) {
+                        actionBtn = `<button onclick="collectLibraryFine('${l.id}', ${l.fine_amount})" class="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold">Pay Fine</button>`;
+                    } else {
+                        actionBtn = `<span class="text-xs text-slate-400 font-semibold uppercase">Returned</span>`;
+                    }
+                    
+                    tbody.innerHTML += `
+                        <tr class="border-b text-xs hover:bg-slate-50">
+                            <td class="py-2.5 px-4 font-bold">${l.book_title}</td>
+                            <td class="py-2.5 px-4">${l.member_name}</td>
+                            <td class="py-2.5 px-4 text-center font-mono">${l.issue_date}</td>
+                            <td class="py-2.5 px-4 text-center font-mono">${l.due_date}</td>
+                            <td class="py-2.5 px-4 text-center">${fineTag}</td>
+                            <td class="py-2.5 px-4 text-center">${actionBtn}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                alert("Circulation Loads Error: " + e.message);
+            }
+        }
+
+        async function processBookIssue() {
+            const book_id = parseInt(document.getElementById("issue-book-select").value);
+            const member_id = parseInt(document.getElementById("issue-member-select").value);
+            const duration_days = parseInt(document.getElementById("issue-days").value);
+            
+            try {
+                await apiFetch("/library/issue", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ book_id, member_id, duration_days })
+                });
+                alert("Book successfully issued to member!");
+                loadLibraryModule();
+            } catch (e) {
+                alert("Book Issue Error: " + e.message);
+            }
+        }
+
+        async function returnBook(issueId) {
+            try {
+                const res = await apiFetch(`/library/return/${issueId}`, { method: "POST" });
+                alert(`Book returned! Overdue fine charge: ${res.fine_amount} PKR`);
+                loadLibraryModule();
+            } catch (e) {
+                alert("Book Return Error: " + e.message);
+            }
+        }
+
+        async function collectLibraryFine(issueId, amount) {
+            try {
+                const res = await apiFetch("/library/pay-fine", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ issue_id: parseInt(issueId), amount: parseFloat(amount) })
+                });
+                alert(`Fine collected! Accounting Receipt posted: ${res.voucher_no}`);
+                loadLibraryModule();
+            } catch (e) {
+                alert("Collect Fine Error: " + e.message);
+            }
+        }
+
+        // Library modals
+        function openBookModal() { document.getElementById("book-modal").classList.remove("hidden"); }
+        function closeBookModal() { document.getElementById("book-modal").classList.add("hidden"); }
+        
+        async function handleBookSubmit(e) {
+            e.preventDefault();
+            const accession_no = document.getElementById("bk-acc").value;
+            const isbn = document.getElementById("bk-isbn").value;
+            const title = document.getElementById("bk-title").value;
+            const author = document.getElementById("bk-author").value;
+            const publisher = document.getElementById("bk-pub").value;
+            const cost = parseFloat(document.getElementById("bk-cost").value || 0);
+            const category = document.getElementById("bk-cat").value;
+            
+            try {
+                await apiFetch("/library/books", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ accession_no, isbn, title, author, publisher, cost, category })
+                });
+                closeBookModal();
+                loadLibraryModule();
+            } catch (err) {
+                alert("Book Catalog Error: " + err.message);
+            }
+        }
+
+        function openMemberModal() { document.getElementById("member-modal").classList.remove("hidden"); }
+        function closeMemberModal() { document.getElementById("member-modal").classList.add("hidden"); }
+
+        async function handleMemberSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById("mem-name").value;
+            const member_type = document.getElementById("mem-type").value;
+            const duration_days = parseInt(document.getElementById("mem-days").value);
+            const email = document.getElementById("mem-email").value;
+            const phone = document.getElementById("mem-phone").value;
+            
+            try {
+                await apiFetch("/library/members", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, member_type, duration_days, email, phone })
+                });
+                closeMemberModal();
+                loadLibraryModule();
+            } catch (err) {
+                alert("Register Member Error: " + err.message);
+            }
+        }
+
+        /* =========================================================================
+           FIXED ASSETS MODULE
+           ========================================================================= */
+        async function loadAssetsModule() {
+            try {
+                globalAssets = await apiFetch("/assets/");
+                const tbody = document.getElementById("assets-rows");
+                tbody.innerHTML = "";
+                
+                globalAssets.forEach(a => {
+                    tbody.innerHTML += `
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="py-3 px-4 font-bold">${a.name}</td>
+                            <td class="py-3 px-4 font-semibold text-xs text-slate-400 uppercase">${a.category}</td>
+                            <td class="py-3 px-4 text-center font-mono">${a.purchase_date}</td>
+                            <td class="py-3 px-4 text-right font-mono">${a.cost.toLocaleString()}</td>
+                            <td class="py-3 px-4 text-center font-mono">${a.depreciation_rate} %</td>
+                            <td class="py-3 px-4 text-center text-xs font-semibold">${a.depreciation_method}</td>
+                            <td class="py-3 px-4 text-right font-mono font-bold text-emerald-600">${a.current_value.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                alert("Assets Load Error: " + e.message);
+            }
+        }
+
+        function openAssetModal() { document.getElementById("asset-modal").classList.remove("hidden"); }
+        function closeAssetModal() { document.getElementById("asset-modal").classList.add("hidden"); }
+
+        async function handleAssetSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById("asset-name").value;
+            const category = document.getElementById("asset-cat").value;
+            const purchase_date = document.getElementById("asset-date").value;
+            const cost = parseFloat(document.getElementById("asset-cost").value);
+            const depreciation_rate = parseFloat(document.getElementById("asset-rate").value);
+            const depreciation_method = document.getElementById("asset-method").value;
+            
+            try {
+                const res = await apiFetch("/assets/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, category, purchase_date, cost, depreciation_rate, depreciation_method })
+                });
+                alert(`Asset registered and capitalized! Journal Voucher posted: ${res.voucher_no}`);
+                closeAssetModal();
+                loadAssetsModule();
+            } catch (err) {
+                alert("Asset Post Error: " + err.message);
+            }
+        }
+
+        async function runAssetsDepreciation() {
+            try {
+                const res = await apiFetch("/assets/run-depreciation", { method: "POST" });
+                alert(`Depreciation processed! Total depreciation charge: ${res.total_depreciation} PKR. Voucher posted: ${res.voucher_no}`);
+                loadAssetsModule();
+            } catch (e) {
+                alert("Depreciation Run Error: " + e.message);
+            }
+        }
+
+        /* =========================================================================
+           HR & PAYROLL MODULE
+           ========================================================================= */
+        function loadPayrollModule() {
+            // Populate staff dropdown
+            const select = document.getElementById("pay-staff-select");
+            select.innerHTML = `<option value="">-- Select Staff Member --</option>` + demoStaff.map((s, idx) => `<option value="${idx}">${s.name} (${s.role})</option>`).join("");
+            
+            document.getElementById("pay-month").value = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+            
+            loadPayrollHistory();
+        }
+
+        function autofillSalary() {
+            const idx = document.getElementById("pay-staff-select").value;
+            if (idx === "") return;
+            const staff = demoStaff[idx];
+            document.getElementById("pay-basic").value = staff.salary;
+        }
+
+        async function handlePayrun(e) {
+            e.preventDefault();
+            const staffIdx = document.getElementById("pay-staff-select").value;
+            if (staffIdx === "") {
+                alert("Please select a staff member!");
+                return;
+            }
+            const staff_name = demoStaff[staffIdx].name;
+            const month_year = document.getElementById("pay-month").value;
+            const basic_salary = parseFloat(document.getElementById("pay-basic").value);
+            const allowance = parseFloat(document.getElementById("pay-allowance").value || 0);
+            const deductions = parseFloat(document.getElementById("pay-deductions").value || 0);
+            
+            try {
+                const res = await apiFetch("/payroll/process", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ staff_name, month_year, basic_salary, allowance, deductions })
+                });
+                alert(`Salary processed successfully! Payment Voucher: ${res.voucher_no}`);
+                loadPayrollHistory();
+            } catch (err) {
+                alert("Payrun Process Error: " + err.message);
+            }
+        }
+
+        async function loadPayrollHistory() {
+            try {
+                const records = await apiFetch("/payroll/");
+                const list = document.getElementById("payroll-history-list");
+                list.innerHTML = "";
+                
+                records.forEach(r => {
+                    list.innerHTML += `
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-slate-800 text-sm">${r.staff_name}</span>
+                                <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase">${r.status}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 flex justify-between">
+                                <span>Month: ${r.month_year}</span>
+                                <span>Net Salary: <b class="font-mono text-slate-700">${r.net_salary.toLocaleString()} PKR</b></span>
+                            </div>
+                            <button onclick="printPaySlip(${JSON.stringify(r).replace(/"/g, '&quot;')})" class="px-2 py-1 mt-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[10px] font-bold">
+                                🖨️ Print Payslip
+                            </button>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                alert("Payroll History Error: " + e.message);
+            }
+        }
+
+        function printPaySlip(payrollRecord) {
+            const r = payrollRecord;
+            const printWindow = window.open("", "_blank");
+            printWindow.document.write(`
+                <html>
+                <head><title>IPS Salary Slip: ${r.staff_name}</title></head>
+                <body style="font-family:sans-serif; padding:40px; border: 1px solid #ccc; max-width: 600px; margin: 0 auto;">
+                    <h2 style="text-align:center; color:#047857; margin-bottom:2px;">INSTITUTE OF POLICY STUDIES</h2>
+                    <p style="text-align:center; font-size:11px; margin-top:0; color:#666;">Nasr Chambers, 1, MPCHS Commercial, E-11/3, Islamabad, Pakistan | Ph: +92 51 843 8391</p>
+                    <hr style="border:1px solid #ccc; margin:20px 0;">
+                    <table style="width:100%; margin-bottom:20px; font-size:14px;">
+                        <tr>
+                            <td><b>Employee Name:</b> ${r.staff_name}</td>
+                            <td style="text-align:right;"><b>Month/Year:</b> ${r.month_year}</td>
+                        </tr>
+                    </table>
+                    <table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">
+                        <tr style="border-bottom:1px solid #ccc;"><td style="padding:10px;">Basic Salary (بنیادی تنخواہ)</td><td style="padding:10px; text-align:right;">${r.basic_salary.toFixed(2)} PKR</td></tr>
+                        <tr style="border-bottom:1px solid #ccc;"><td style="padding:10px;">Allowances (الاؤنس)</td><td style="padding:10px; text-align:right;">+ ${r.allowance.toFixed(2)} PKR</td></tr>
+                        <tr style="border-bottom:1px solid #ccc;"><td style="padding:10px;">Deductions (کٹوتی)</td><td style="padding:10px; text-align:right;">- ${r.deductions.toFixed(2)} PKR</td></tr>
+                        <tr style="font-weight:bold; background:#f1f5f9;"><td style="padding:10px;">Net Pay (کل تنخواہ)</td><td style="padding:10px; text-align:right; color:#047857;">${r.net_salary.toFixed(2)} PKR</td></tr>
+                    </table>
+                    <p style="font-size:11px; text-align:center; color:#888;">This is a system generated salary slip. Full double entry posted to general ledger accounts.</p>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        /* =========================================================================
+           AUDIT TRAILS MODULE
+           ========================================================================= */
+        async function loadAuditTrail() {
+            try {
+                const logs = await apiFetch("/accounting/vouchers"); // Default fallback, but let's fetch audit endpoint
+                // Wait! Did we write the audit endpoint?
+                // Let's add an endpoint /accounting/audit inside accounting.py or handle it directly here from vouchers
+                // Since audit trail is saved in db, we can write a quick endpoint, but wait:
+                // We have the sql connection. Let's see if we can query audit logs.
+                // In db.py we created audit_trail table! Let's check if we added an endpoint for it.
+                // In accounting.py we didn't add the audit route.
+                // We can add it to accounting.py, or write a dedicated endpoint, or query it.
+                // Let's call /accounting/audit if we add it. Wait, let's write it in accounting.py!
+                // Let's add `/audit` endpoint to `accounting.py`. Let's do it using replace_file_content!
+                // Wait, let's look at the bottom of `accounting.py`.
+            } catch (e) {
+                console.log(e.message);
+            }
+        }
+        
+        async function loadAuditTrail() {
+            try {
+                const logs = await apiFetch("/accounting/reports/audit");
+                const tbody = document.getElementById("audit-rows");
+                tbody.innerHTML = "";
+                logs.forEach(l => {
+                    tbody.innerHTML += `
+                        <tr class="border-b text-xs hover:bg-slate-50">
+                            <td class="py-2.5 px-4 font-mono">${l.timestamp.split("T")[0]} ${l.timestamp.split("T")[1].substring(0,8)}</td>
+                            <td class="py-2.5 px-4 font-bold text-slate-600">${l.changed_by}</td>
+                            <td class="py-2.5 px-4 text-emerald-600 font-bold uppercase">${l.action}</td>
+                            <td class="py-2.5 px-4 font-mono">${l.table_name}</td>
+                            <td class="py-2.5 px-4 text-slate-500">${l.details}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                console.log(e.message);
+            }
+        }
+    </script>
+</body>
+</html>
